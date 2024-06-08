@@ -15,26 +15,26 @@
             align-items: center;
             flex-direction: column;
             min-height: 100vh;
-            background-image: url("https://images.pexels.com/photos/235985/pexels-photo-235985.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1");
-            background-size: cover;
+            background-image: url("https://images.pexels.com/photos/235985/pexels-photo-235985.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1");            background-size: cover;
             background-position: center;
         }
         .container {
             max-width: 800px;
-            background-color: rgba(255, 255, 255, 0.8); /* semi-transparent white */
+            background-color: rgba(0, 0, 0, 0.5); /* semi-transparent black */
             border-radius: 10px;
             padding: 20px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             margin: 20px;
             text-align: center;
+            color: #fff; /* text color */
         }
         h1 {
             font-size: 2.5em;
-            color: #333;
+            color: #fff; /* title color */
             margin-top: 20px;
         }
         p {
-            color: #666;
+            color: #ccc; /* paragraph color */
             line-height: 1.6;
         }
         img {
@@ -68,7 +68,7 @@
         .score {
             font-size: 1.5em;
             margin-top: 20px;
-            color: #333;
+            color: #fff; /* score color */
         }
         @media (max-width: 600px) {
             h1 {
@@ -88,10 +88,9 @@
     <div class="container">
         <h1>Shahrukh Khan</h1>
         <p>Shahrukh Khan, also known as the "King of Bollywood," is one of the most famous actors in the Indian film industry. With a career spanning over three decades, he has appeared in more than 80 Bollywood films and earned numerous accolades. Shahrukh is known for his versatile acting skills, charming personality, and philanthropic efforts. His fan base extends beyond India, making him a global icon.</p>
-        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQi0H0CA1QQyZ4qJJXs9AIJl8GaLnUCnN9RTQ&usqp=CAU" alt="Shahrukh Khan">
-        <br><br>
+        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQi0H0CA1QQyZ4qJJXs9AIJl8GaLnUCnN9RTQ&usqp=CAU" alt="Shahrukh Khan">        <br><br>
         <button onclick="startGame()">OPZYAC GAME</button>
-        <canvas id="gameCanvas" width="400" height="400"></canvas>
+        <canvas id="gameCanvas"></canvas>
         <div class="score" id="score">Score: 0</div>
     </div>
 
@@ -114,6 +113,10 @@
 
         let eatSound = document.getElementById('eatSound');
         let gameOverSound = document.getElementById('gameOverSound');
+
+        // Adjust canvas size for mobile
+        canvas.width = window.innerWidth < 400 ? window.innerWidth - 40 : 400;
+        canvas.height = canvas.width;
 
         document.addEventListener('keydown', directionSet);
 
@@ -165,12 +168,23 @@
             if (snakeX < 0 || snakeY < 0 || snakeX >= canvas.width || snakeY >= canvas.height || collision(newHead, snake)) {
                 clearInterval(game);
                 gameOverSound.play();
-                alert('Game Over. Your score was: ' + score);
+                alert('Game Over! Your final score is ' + score);
+                snake = [{ x: 10 * box, y: 10 * box }];
+                direction = undefined;
                 score = 0;
                 scoreElement.textContent = 'Score: ' + score;
+                food = {
+                    x: Math.floor(Math.random() * 20) * box,
+                    y: Math.floor(Math.random() * 20) * box
+                };
             }
 
             snake.unshift(newHead);
+        }
+
+        function startGame() {
+            if (game) return;
+            game = setInterval(draw, 100);
         }
 
         function collision(head, array) {
@@ -180,20 +194,6 @@
                 }
             }
             return false;
-        }
-
-        function startGame() {
-            canvas.style.display = 'block';
-            direction = null;  // Reset direction to prevent instant collision
-            snake = [{ x: 10 * box, y: 10 * box }];  // Reset snake
-            food = {  // Reset food
-                x: Math.floor(Math.random() * 20) * box,
-                y: Math.floor(Math.random() * 20) * box
-            };
-            clearInterval(game);  // Clear any previous game intervals
-            game = setInterval(draw, 100);
-            score = 0;  // Reset score
-            scoreElement.textContent = 'Score: ' + score;
         }
     </script>
 </body>
