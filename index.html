@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shahrukh Khan</title>
     <style>
+        
         body {
             font-family: 'Arial', sans-serif;
             background-color: #f0f0f0;
@@ -21,21 +22,21 @@
         }
         .container {
             max-width: 800px;
-            background-color: rgba(0, 0, 0, 0.5);
+            background-color: rgba(0, 0, 0, 0.5); /* semi-transparent black */
             border-radius: 10px;
             padding: 20px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             margin: 20px;
             text-align: center;
-            color: #fff;
+            color: #fff; /* text color */
         }
         h1 {
             font-size: 2.5em;
-            color: #fff;
+            color: #fff; /* title color */
             margin-top: 20px;
         }
         p {
-            color: #ccc;
+            color: #ccc; /* paragraph color */
             line-height: 1.6;
         }
         img {
@@ -51,10 +52,16 @@
             margin: 20px auto;
             border-radius: 5px;
         }
-        button {
+        .button-container {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
             margin-top: 20px;
-            padding: 15px 30px;
-            font-size: 1.2em;
+            width: 100%;
+        }
+        .button-container button {
+            padding: 10px 20px;
+            font-size: 1em;
             cursor: pointer;
             background-color: #4CAF50;
             color: white;
@@ -63,13 +70,32 @@
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             transition: background-color 0.3s ease;
         }
-        button:hover {
+        .button-container button:hover {
             background-color: #45a049;
         }
         .score {
             font-size: 1.5em;
             margin-top: 20px;
-            color: #fff;
+            color: #fff; /* score color */
+        }
+        .mobile-controls {
+            display: none;
+            margin-top: 20px;
+        }
+        .mobile-controls button {
+            width: 50px;
+            height: 50px;
+            font-size: 1.5em;
+            border-radius: 5px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s ease;
+        }
+        .mobile-controls button:hover {
+            background-color: #45a049;
         }
         @media (max-width: 600px) {
             h1 {
@@ -78,22 +104,13 @@
             p {
                 font-size: 0.9em;
             }
-            button {
-                font-size: 1em;
-                padding: 12px 24px;
+            .button-container {
+                flex-direction: column;
             }
-        }
-        .mobile-controls {
-            display: flex;
-            justify-content: center;
-            margin-top: 20px;
-        }
-        .mobile-controls button {
-            margin: 5px;
-        }
-        .zoom {
-            transform: scale(1.5);
-            transform-origin: top;
+            .button-container button {
+                margin: 10px 0;
+                width: 60%;
+            }
         }
     </style>
 </head>
@@ -102,17 +119,33 @@
         <h1>Shahrukh Khan</h1>
         <p>Shahrukh Khan, also known as the "King of Bollywood," is one of the most famous actors in the Indian film industry. With a career spanning over three decades, he has appeared in more than 80 Bollywood films and earned numerous accolades. Shahrukh is known for his versatile acting skills, charming personality, and philanthropic efforts. His fan base extends beyond India, making him a global icon.</p>
         <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQi0H0CA1QQyZ4qJJXs9AIJl8GaLnUCnN9RTQ&usqp=CAU" alt="Shahrukh Khan">
-        <br><br>
-        <button id="startButton" onclick="startGame()">Start Game</button>
+        <div class="button-container">
+            <button onclick="startGame()">Wanna Play A Game</button>
+            <button onclick="playMusic()">Play Music</button>
+            
+
+        </div>
         <canvas id="gameCanvas"></canvas>
         <div class="score" id="score">Score: 0</div>
+        <button id="restartButton" onclick="restartGame()" style="display: none;">Restart Game</button>
+        
+
         <div class="mobile-controls">
-            <button onclick="restartGame()">Restart Game</button>
+            <button id="upButton">↑</button>
+            <div>
+                <button id="leftButton">←</button>
+                <button id="rightButton">→</button>
+            </div>
+            <button id="downButton">↓</button>
         </div>
     </div>
 
     <audio id="eatSound" src="eatSound.mp3"></audio>
     <audio id="gameOverSound" src="gameOverSound.mp3"></audio>
+    <audio id="musicPlayer" src="song1.mp3"></audio>
+    <audio id="musicPlayer" src="song2.mp3"></audio>
+    <audio id="musicPlayer" src="song3.mp3"></audio>
+
 
     <script>
         let canvas = document.getElementById('gameCanvas');
@@ -137,13 +170,27 @@
         document.addEventListener('keydown', directionSet);
 
         function directionSet(event) {
-            if (event.keyCode == 37 && direction != 'RIGHT') {
+            if (!game) return;
+            if (event.key === 'ArrowLeft' && direction !== 'RIGHT') {
                 direction = 'LEFT';
-            } else if (event.keyCode == 38 && direction != 'DOWN') {
+            } else if (event.key === 'ArrowUp' && direction !== 'DOWN') {
                 direction = 'UP';
-            } else if (event.keyCode == 39 && direction != 'LEFT') {
+            } else if (event.key === 'ArrowRight' && direction !== 'LEFT') {
                 direction = 'RIGHT';
-            } else if (event.keyCode == 40 && direction != 'UP') {
+            } else if (event.key === 'ArrowDown' && direction !== 'UP') {
+                direction = 'DOWN';
+            }
+        }
+
+        function changeDirection(newDirection) {
+            if (!game) return;
+            if (newDirection === 'LEFT' && direction !== 'RIGHT') {
+                direction = 'LEFT';
+            } else if (newDirection === 'UP' && direction !== 'DOWN') {
+                direction = 'UP';
+            } else if (newDirection === 'RIGHT' && direction !== 'LEFT') {
+                direction = 'RIGHT';
+            } else if (newDirection === 'DOWN' && direction !== 'UP') {
                 direction = 'DOWN';
             }
         }
@@ -151,7 +198,7 @@
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             for (let i = 0; i < snake.length; i++) {
-                ctx.fillStyle = i == 0 ? '#4CAF50' : '#45a049';
+                ctx.fillStyle = i === 0 ? '#4CAF50' : '#45a049';
                 ctx.fillRect(snake[i].x, snake[i].y, box, box);
                 ctx.strokeStyle = '#333';
                 ctx.strokeRect(snake[i].x, snake[i].y, box, box);
@@ -162,12 +209,12 @@
             let snakeX = snake[0].x;
             let snakeY = snake[0].y;
 
-            if (direction == 'LEFT') snakeX -= box;
-            if (direction == 'UP') snakeY -= box;
-            if (direction == 'RIGHT') snakeX += box;
-            if (direction == 'DOWN') snakeY += box;
+            if (direction === 'LEFT') snakeX -= box;
+            if (direction === 'UP') snakeY -= box;
+            if (direction === 'RIGHT') snakeX += box;
+            if (direction === 'DOWN') snakeY += box;
 
-            if (snakeX == food.x && snakeY == food.y) {
+            if (snakeX === food.x && snakeY === food.y) {
                 eatSound.play();
                 score++;
                 scoreElement.textContent = 'Score: ' + score;
@@ -188,42 +235,18 @@
                 snake = [{ x: 10 * box, y: 10 * box }];
                 direction = undefined;
                 score = 0;
+               
                 scoreElement.textContent = 'Score: ' + score;
                 food = {
                     x: Math.floor(Math.random() * 20) * box,
                     y: Math.floor(Math.random() * 20) * box
                 };
+                game = undefined;
+                document.getElementById('restartButton').style.display = 'block';
+                document.querySelector('.mobile-controls').style.display = 'block';
             }
 
             snake.unshift(newHead);
-        }
-
-        function startGame() {
-            if (game) return;
-            if (isMobileDevice()) {
-                document.querySelector('.container').classList.add('zoom');
-                canvas.width = window.innerWidth;
-                canvas.height = canvas.width;
-            }
-            game = setInterval(draw, 100);
-            document.getElementById('startButton').style.display = 'none';
-        }
-
-        function restartGame() {
-            clearInterval(game);
-            snake = [{ x: 10 * box, y: 10 * box }];
-            direction = undefined;
-            score = 0;
-            scoreElement.textContent = 'Score: ' + score;
-            food = {
-                x: Math.floor(Math.random() * 20) * box,
-                y: Math.floor(Math.random() * 20) * box
-            };
-            startGame();
-        }
-
-        function isMobileDevice() {
-            return (typeof window.orientation !== "undefined") || (navigator.userAgent.indexOf('IEMobile') !== -1);
         }
 
         function collision(head, array) {
@@ -234,6 +257,74 @@
             }
             return false;
         }
+
+        function startGame() {
+            snake = [{ x: 10 * box, y: 10 * box }];
+            direction = undefined;
+            score = 0;
+            scoreElement.textContent = 'Score: ' + score;
+            food = {
+                x: Math.floor(Math.random() * 20) * box,
+                y: Math.floor(Math.random() * 20) * box
+            };
+            game = setInterval(draw, 100);
+            document.getElementById('restartButton').style.display = 'none';
+            document.querySelector('.mobile-controls').style.display = 'none';
+        }
+
+        if (snakeX < 0 || snakeY < 0 || snakeX >= canvas.width || snakeY >= canvas.height || collision(newHead, snake)) {
+    clearInterval(game);
+    gameOverSound.play();
+    alert('Game Over! Your final score is ' + score);
+    snake = [{ x: 10 * box, y: 10 * box }];
+    direction = undefined;
+    score = 0;
+    scoreElement.textContent = 'Score: ' + score;
+    food = {
+        x: Math.floor(Math.random() * 20) * box,
+        y: Math.floor(Math.random() * 20) * box
+    };
+
+    // Show the restart button
+    document.getElementById('restartButton').style.display = 'block';
+}
+function restartGame() {
+    // Reset the game variables
+    snake = [{ x: 10 * box, y: 10 * box }];
+    direction = undefined;
+    score = 0;
+    scoreElement.textContent = 'Score: ' + score;
+    food = {
+        x: Math.floor(Math.random() * 20) * box,
+        y: Math.floor(Math.random() * 20) * box
+    };
+
+    // Hide the restart button again
+    document.getElementById('restartButton').style.display = 'none';
+
+    // Restart the game loop
+    game = setInterval(draw, 100);
+}
+
+        function playMusic() {
+    // Add your music play logic here
+    // For example, if you have an audio element with ID 'musicPlayer'
+    let musicPlayer = document.getElementById('musicPlayer');
+    musicPlayer.play();
+}
+
+
+        function setupMobileControls() {
+            // Arrow key controls for mobile
+            document.getElementById('upButton').addEventListener('click', () => changeDirection('UP'));
+            document.getElementById('downButton').addEventListener('click', () => changeDirection('DOWN'));
+            document.getElementById('leftButton').addEventListener('click', () => changeDirection('LEFT'));
+            document.getElementById('rightButton').addEventListener('click', () => changeDirection('RIGHT'));
+        }
+
+        // Setup mobile controls
+        setupMobileControls();
+        
     </script>
 </body>
 </html>
