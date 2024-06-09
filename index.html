@@ -78,7 +78,10 @@
             color: #fff; /* score color */
         }
         .mobile-controls {
-            display: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
             margin-top: 20px;
         }
         .mobile-controls button {
@@ -92,6 +95,7 @@
             cursor: pointer;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             transition: background-color 0.3s ease;
+            margin: 5px;
         }
         .mobile-controls button:hover {
             background-color: #45a049;
@@ -124,14 +128,11 @@
         </div>
         <canvas id="gameCanvas" style="display: none;"></canvas>
         <div class="score" id="score">Score: 0</div>
-
         <div class="mobile-controls">
-            <button id="upButton">↑</button>
-            <div>
-                <button id="leftButton">←</button>
-                <button id="rightButton">→</button>
-            </div>
-            <button id="downButton">↓</button>
+            <button id="upButton" onclick="changeDirection('UP')">↑</button>
+            <button id="leftButton" onclick="changeDirection('LEFT')">←</button>
+            <button id="rightButton" onclick="changeDirection('RIGHT')">→</button>
+            <button id="downButton" onclick="changeDirection('DOWN')">↓</button>
         </div>
     </div>
 
@@ -160,6 +161,32 @@
 
         canvas.width = window.innerWidth < 400 ? window.innerWidth - 40 : 400;
         canvas.height = canvas.width;
+
+        function directionSet(event) {
+            if (!game) return;
+            if (event.key === 'ArrowLeft' && direction !== 'RIGHT') {
+                direction = 'LEFT';
+            } else if (event.key === 'ArrowUp' && direction !== 'DOWN') {
+                direction = 'UP';
+            } else if (event.key === 'ArrowRight' && direction !== 'LEFT') {
+                direction = 'RIGHT';
+            } else if (event.key === 'ArrowDown' && direction !== 'UP') {
+                direction = 'DOWN';
+            }
+        }
+
+        function changeDirection(newDirection) {
+            if (!game) return;
+            if (newDirection === 'LEFT' && direction !== 'RIGHT') {
+                direction = 'LEFT';
+            } else if (newDirection === 'UP' && direction !== 'DOWN') {
+                direction = 'UP';
+            } else if (newDirection === 'RIGHT' && direction !== 'LEFT') {
+                direction = 'RIGHT';
+            } else if (newDirection === 'DOWN' && direction !== 'UP') {
+                direction = 'DOWN';
+            }
+        }
 
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -194,22 +221,14 @@
 
             let newHead = { x: snakeX, y: snakeY };
 
-            if (snakeX < 0 || snakeY < 0 || snakeX >= canvas.width || snakeY >= canvas.height || collision(newHead, snake)) {
-                clearInterval(game);
+            if (snakeX < 0 || snakeX >= canvas.width || snakeY < 0 || snakeY >= canvas.height || collision(newHead, snake)) {
                 gameOverSound.play();
-                alert('Game Over! Your final score is ' + score);
-                snake = [{ x: 10 * box, y: 10 * box }];
-                direction = undefined;
-                score = 0;
-                scoreElement.textContent = 'Score: ' + score;
-                food = {
-                    x: Math.floor(Math.random() * 20) * box,
-                    y: Math.floor(Math.random() * 20) * box
-                };
-                game = undefined;
-                document.querySelector('.mobile-controls').style.display = 'none';
-                document.getElementById('gameCanvas').style.display = 'none';
+                clearInterval(game);
+                game = null;
+                canvas.style.display = 'none';
                 document.querySelector('.button-container').style.display = 'flex';
+                document.querySelector('.mobile-controls').style.display = 'none';
+                return;
             }
 
             snake.unshift(newHead);
@@ -224,40 +243,30 @@
             return false;
         }
 
-       
-
         function startGame() {
             snake = [{ x: 10 * box, y: 10 * box }];
-            direction = undefined;
+            direction = 'RIGHT';
             score = 0;
-            scoreElement.textContent = 'Score: ' + score;
+            scoreElement.textContent = 'Score: 0';
             food = {
                 x: Math.floor(Math.random() * 20) * box,
                 y: Math.floor(Math.random() * 20) * box
             };
             game = setInterval(draw, 100);
-            document.getElementById('gameCanvas').style.display = 'block';
+            canvas.style.display = 'block';
             document.querySelector('.button-container').style.display = 'none';
             document.querySelector('.mobile-controls').style.display = 'flex';
-            document.getElementById('upButton').onclick = () => direction = 'UP';
-            document.getElementById('leftButton').onclick = () => direction = 'LEFT';
-            document.getElementById('rightButton').onclick = () => direction = 'RIGHT';
-            document.getElementById('downButton').onclick = () => direction = 'DOWN';
         }
+
+        document.addEventListener('keydown', directionSet);
 
         function playMusic() {
-            const songs = ['song1.mp3', 'song2.mp3', 'song3.mp3'];
-            const randomIndex = Math.floor(Math.random() * songs.length);
-            const music = new Audio(songs[randomIndex]);
-            music.play();
+            let musicPlayer = document.getElementById('musicPlayer');
+            musicPlayer.play();
         }
 
-        document.addEventListener('keydown', (event) => {
-            if (event.key === 'ArrowUp' && direction !== 'DOWN') direction = 'UP';
-            if (event.key === 'ArrowLeft' && direction !== 'RIGHT') direction = 'LEFT';
-            if (event.key === 'ArrowRight' && direction !== 'LEFT') direction = 'RIGHT';
-            if (event.key === 'ArrowDown' && direction !== 'UP') direction = 'DOWN';
-        });
     </script>
 </body>
 </html>
+
+
